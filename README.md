@@ -4,7 +4,7 @@ Create a chatgpt chatbot for your website using LangChain, Supabase, Typescript,
 
 [Tutorial video](https://www.youtube.com/watch?v=prbloUGlvLE)
 
-[Get in touch via twitter if you need help](https://twitter.com/mayowaoshin)
+[Get in touch via twitter if you need help](https://twitter.com/shikhil_gupta)
 
 The visual guide of this repo and tutorial is in the `visual guide` folder.
 
@@ -79,4 +79,4 @@ Once you've verified that the embeddings and content have been successfully adde
 
 Frontend of this repo is inspired by [langchain-chat-nextjs](https://github.com/zahidkhawaja/langchain-chat-nextjs)
 
-This repo uses in-depth Notion guides from the [website](https://thomasjfrank.com/) of productivity expert, Thomas Frank.
+This repo uses in-depth Notion guides from the [website](https://www.linkedin.com/in/shikhilg/) of productivity expert, Shikhil Gupta.
