@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { OpenAIEmbeddings } from 'langchain/embeddings';
-import { SupabaseVectorStore } from 'langchain/vectorstores';
-import { openai } from '@/utils/openai-client';
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { SupabaseLibArgs, SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { supabaseClient } from '@/utils/supabase-client';
 import { makeChain } from '@/utils/makechain';
+import { ConversationalRetrievalQAChain } from "langchain/chains";
 
+let chain: ConversationalRetrievalQAChain | null = null;
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -17,10 +18,15 @@ export default async function handler(
   // OpenAI recommends replacing newlines with spaces for best results
   const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
 
+  const dbConfig: SupabaseLibArgs = {
+    client: supabaseClient,
+    tableName: "documents",
+    // ...other Supabase client config 
+  };
   /* create vectorstore*/
   const vectorStore = await SupabaseVectorStore.fromExistingIndex(
-    supabaseClient,
     new OpenAIEmbeddings(),
+    dbConfig
   );
 
   res.writeHead(200, {
@@ -35,18 +41,21 @@ export default async function handler(
 
   sendData(JSON.stringify({ data: '' }));
 
-  const model = openai;
   // create the chain
-  const chain = makeChain(vectorStore, (token: string) => {
-    sendData(JSON.stringify({ data: token }));
-  });
+
+  if (!chain) {
+    chain = makeChain(vectorStore);
+  }
 
   try {
     //Ask a question
-    const response = await chain.call({
-      question: sanitizedQuestion,
-      chat_history: history || [],
-    });
+    const response = await chain.call({ question: sanitizedQuestion }, [
+      {
+        handleLLMNewToken(token: string) {
+          sendData(JSON.stringify({ data: token }));
+        },
+      },
+    ]);
 
     console.log('response', response);
   } catch (error) {
